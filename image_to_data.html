@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bitmaper 128x32</title>
+  <style>
+    body {
+      font-family: monospace;
+      background: #000000;
+      color: #eee;
+      margin: 0;
+      padding: 20px;
+    }
+  
+    canvas {
+      border: 1px solid #6e6363;
+      cursor: crosshair;
+      display: block;
+      margin-bottom: 10px;
+    }
+  
+    #output {
+      white-space: pre;
+      background: #222;
+      padding: 10px;
+      border: 1px solid #555;
+      max-height: 300px;
+      width: 40%;
+      overflow-y: auto;
+    }
+  
+    input,
+    button,
+    label {
+      margin: 5px;
+    }
+  
+    button {
+      background-color: #333;
+      color: #eee;
+      border: 2px solid #94dd0c;
+      border-radius: 5px;
+      padding: 10px 15px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+  
+    button:hover {
+      background-color: #1bd115;
+    }
+  
+    button:active {
+      transform: scale(0.98);
+    }
+  
+    button:focus {
+      outline: none;
+      border-color: #888;
+    }
+  </style>
+</head>
+<body>
+  <h1>Bitmaper 128x32</h1>
+  <canvas id="canvas"></canvas>
+
+  <button onclick="clearGrid()">Clear</button>
+  <button onclick="fillGrid()">Fill</button>
+  <button onclick="invertGrid()">Invert</button>
+  <button onclick="copyOutput()">Copy</button>
+  <pre id="output"></pre>
+
+  <script>
+    const width = 128;
+    const height = 32;
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const image = new Array(width * height).fill(0);
+    let isDrawing = false;
+    let lastX = -1;
+    let lastY = -1;
+    let drawingColor = null;
+
+    // Функция для обновления размеров холста в зависимости от ширины окна
+    function updateCanvasSize() {
+      const scale = Math.floor(window.innerWidth / width);  // Масштабируем размер пикселя
+      canvas.width = width * scale;
+      canvas.height = height * scale;
+      drawCanvas();  // Перерисовываем холст с новым масштабом
+    }
+
+    // Отрисовка холста с сеткой
+    function drawCanvas() {
+      ctx.fillStyle = "#000";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const scale = Math.floor(window.innerWidth / width);  // Масштабируем размер пикселя
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          ctx.fillStyle = image[y * width + x] ? "#fff" : "#111";
+          ctx.fillRect(x * scale, y * scale, scale, scale);
+        }
+      }
+
+      // Рисуем сетку
+      ctx.strokeStyle = "#333";  // Цвет сетки
+      ctx.lineWidth = 1;
+      for (let x = 0; x <= width; x++) {
+        ctx.beginPath();
+        ctx.moveTo(x * scale, 0);
+        ctx.lineTo(x * scale, height * scale);
+        ctx.stroke();
+      }
+      for (let y = 0; y <= height; y++) {
+        ctx.beginPath();
+        ctx.moveTo(0, y * scale);
+        ctx.lineTo(width * scale, y * scale);
+        ctx.stroke();
+      }
+    }
+
+    function togglePixel(x, y) {
+      const index = y * width + x;
+      // Меняем пиксель на выбранный цвет
+      image[index] = drawingColor ? 1 : 0; 
+      drawCanvas();
+      exportBitmap();
+    }
+
+    function updatePixelFromEvent(e) {
+      const rect = canvas.getBoundingClientRect();
+      const scale = Math.floor(window.innerWidth / width);  // Масштабируем размер пикселя
+      const x = Math.floor((e.clientX - rect.left) / scale);
+      const y = Math.floor((e.clientY - rect.top) / scale);
+
+      // Если курсор не двигается по одному пикселю, изменим пиксель
+      if (x !== lastX || y !== lastY) {
+        if (x >= 0 && x < width && y >= 0 && y < height) {
+          togglePixel(x, y);
+          lastX = x;
+          lastY = y;
+        }
+      }
+    }
+
+    canvas.addEventListener("mousedown", (e) => {
+      isDrawing = true;
+      const rect = canvas.getBoundingClientRect();
+      const scale = Math.floor(window.innerWidth / width);  // Масштабируем размер пикселя
+      const x = Math.floor((e.clientX - rect.left) / scale);
+      const y = Math.floor((e.clientY - rect.top) / scale);
+      
+      // Устанавливаем цвет рисования на противоположный цвет текущего пикселя
+      const index = y * width + x;
+      drawingColor = image[index] === 1 ? false : true;
+
+      updatePixelFromEvent(e);
+    });
+
+    canvas.addEventListener("mousemove", (e) => {
+      if (isDrawing) {
+        updatePixelFromEvent(e);
+      }
+    });
+
+    canvas.addEventListener("mouseup", () => {
+      isDrawing = false;
+      lastX = -1;
+      lastY = -1;
+    });
+
+    canvas.addEventListener("mouseleave", () => {
+      isDrawing = false;
+      lastX = -1;
+      lastY = -1;
+    });
+
+    // Инициализация
+    window.addEventListener("resize", updateCanvasSize);
+    updateCanvasSize(); // При загрузке сразу адаптируем холст
+
+    function clearGrid() {
+      image.fill(0);
+      drawCanvas();
+      exportBitmap();
+    }
+
+    function fillGrid() {
+      image.fill(1);
+      drawCanvas();
+      exportBitmap();
+    }
+
+    function invertGrid() {
+      for (let i = 0; i < image.length; i++) {
+        image[i] = image[i] ? 0 : 1;
+      }
+      drawCanvas();
+      exportBitmap();
+    }
+    
+    function exportBitmap() {
+  let bytes = [];
+  for (let x = 0; x < width; x++) { 
+    for (let by = 0; by < height; by += 8) { 
+      let byte = 0;
+      for (let b = 0; b < 8; b++) { 
+        const y = by + b;
+        const bit = image[y * width + x];
+        byte |= (bit ? 1 : 0) << (7 - b);
+      }
+      bytes.push(byte.toString(16).padStart(2, "0").toUpperCase());
+    }
+  }
+
+  const lines = [];
+  lines.push(bytes.slice(0, 8).join(""));
+  for (let i = 8; i < bytes.length - 8; i += 16) {
+    lines.push(bytes.slice(i, i + 16).join(""));
+  }
+  lines.push(bytes.slice(-8).join(""));
+  document.getElementById("output").textContent = lines.join("\n");
+}
+
+
+
+    function copyOutput() {
+      const output = document.getElementById("output").textContent;
+      navigator.clipboard.writeText(output).then(() => alert("Copied!"));
+    }
+  </script>
+</body>
+</html>
