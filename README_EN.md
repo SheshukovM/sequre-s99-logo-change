@@ -38,13 +38,14 @@ This method allows you to use an image (like a photo) as the boot logo.
 
 #### 📷 Steps:
 
-✅ 1. Open **`bitmaper.html`** in your browser  
-✅ 2. In the **Процесс** section, select `8x Vertical Col`  
-✅ 3. Upload an image and adjust brightness/contrast  
-✅ 4. Click **Копировать** to copy the generated data array  
-✅ 5. Run **`make_data.exe`**  
-✅ 6. Paste the copied text into the console and press **Enter** twice  
-✅ 7. Use the resulting array in **`make_firmware.exe`**
+✅ 1. Open **`bitmaper.html`** in your browser 
+✅ 2. Set 128x32 rezolution  
+✅ 3. In the **Процесс** section, select `8x Vertical Col`  
+✅ 4. Upload an image and adjust brightness/contrast  
+✅ 5. Click **Копировать** to copy the generated data array  
+✅ 6. Run **`make_data.exe`**  
+✅ 7. Paste the copied text into the console and press **Enter** twice  
+✅ 8. Use the resulting array in **`make_firmware.exe`**
 
 ---
 
@@ -57,3 +58,4 @@ This method allows you to use an image (like a photo) as the boot logo.
 ---
 
 ## 💬 Thanks to [AlexGyver](https://github.com/AlexGyver) for **bitmaper.html**
+
