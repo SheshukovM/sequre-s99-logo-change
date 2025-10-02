@@ -53,7 +53,7 @@ This method allows you to use an image (like a photo) as the boot logo.
 
 - The original firmware file **`S99_V1.08.hex`** must be in the same folder as **`make_firmware.exe`**
 - All changes are at your own risk 😄  
-- Only compatible with **Secure S99**
+- Only compatible with **Sequre S99**
 
 ---
 
