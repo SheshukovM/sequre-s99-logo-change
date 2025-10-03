@@ -45,7 +45,7 @@ int main() {
 
     for (int i = 0; i < v.size(); i++) {
         cout << uppercase << setw(2) << setfill('0') 
-            << hex << (static_cast<unsigned>(static_cast<unsigned char>(v[i])));
+            << hex << static_cast<unsigned>(v[i]);
         if ((i + 9) % 16 == 0 || i == 7)  cout << endl;
     }
 
